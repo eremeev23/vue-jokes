@@ -51,13 +51,9 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   background-image: linear-gradient(to top left, #00eeff, #00b7ff);
-}
-h1{
-  text-transform: uppercase;
 }
 </style>

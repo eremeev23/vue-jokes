@@ -3,6 +3,12 @@
     <form class="search__form" @submit.prevent="submit">
       <input  type="search" v-model="search" class="search" placeholder="Введите слово для поиска анекдотов...">
       <button @click="filteredItems" class="search__button"><i class="fa fa-search"></i></button>
+      <div class="select">
+            <select @click="filterLikedJokes" name="jokes__list" class="options">
+                <option value="all">All</option>
+                <option value="liked">Liked</option>
+            </select>
+        </div>
     </form>
     <div class='list__block'>
             <ul class="list">
@@ -26,7 +32,8 @@ export default {
     data() {
         return {
             search: '',
-            data: []
+            data: [],
+            likedJokes: []
         }
     },
     props: {
@@ -47,20 +54,47 @@ export default {
         }
     },
     methods: {
-        //Like the joke
+        //Like the joke, save the joke's status and remove the joke's status
         changeLike(e){
-            if (e.target.className == 'far fa-thumbs-up' || e.target.className == 'fa-thumbs-up far') {
-                e.target.classList.add('fas');
-                e.target.classList.remove('far');
-                e.target.parentElement.classList.add('liked');
+            const item = e.target;
+            const likedJoke = item.parentElement;
+
+            if (item.className == 'far fa-thumbs-up' || item.className == 'fa-thumbs-up far') {
+                item.classList.add('fas');
+                item.classList.remove('far');
+                likedJoke.classList.add('liked');
+                this.likedJokes.push(likedJoke.innerText);
+                localStorage.setItem('likedJokes', JSON.stringify(this.likedJokes));
             } else {
-                e.target.classList.add('far');
-                e.target.classList.remove('fas');
-                e.target.parentElement.classList.remove('liked');
+                const todoIndex = likedJoke.children[0].innerText;
+                item.classList.add('far');
+                item.classList.remove('fas');
+                item.parentElement.classList.remove('liked');
+                this.likedJokes.splice(this.likedJokes.indexOf(todoIndex), 1);
+                localStorage.setItem('likedJokes', JSON.stringify(this.likedJokes));
             }
-        return;
+            return;
         },
-    },
+        //Filter for all and liked jokes
+        filterLikedJokes(e){
+            const list = document.querySelector('.list')
+            const jokesList = list.childNodes;
+            jokesList.forEach(function(joke){
+                switch(e.target.value){
+                    case 'all':
+                        joke.style.display = 'flex';
+                    break;
+                    case 'liked':
+                        if (joke.classList.contains('liked')) {
+                            joke.style.display = 'flex';
+                        } else {
+                            joke.style.display = 'none';
+                        }
+                    break;
+                }
+            })
+        }
+    }
 }
 </script>
 
@@ -68,21 +102,22 @@ export default {
 .search__bar{
     background-image: linear-gradient(130deg,rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.3));
     border-radius: 20px;
+    max-height: 80%;
 }
 .search__form{
     position: relative;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     width: 660px;
-    border: none;
 }
 .search{
     font-family: 'Montserrat', sans-serif;
     font-weight: 400;
     outline: none;
-    min-width: 656px;
+    min-width: 500px;
     min-height: 58px;
     border: none;
-    margin-left: 17px;
-    margin-top: 15px;
     font-size: 1.4em;
     padding: 5px;
     background: rgb(255, 255, 255, 0);
@@ -100,11 +135,47 @@ input::-webkit-search-results-button,
 input::-webkit-search-results-decoration { 
     display: none; 
 }
+.select {
+    height: 80%; 
+}
+.options {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  border: none;
+  border-radius: 20px;
+  color: #4291f8;
+  cursor: pointer;
+  width: 6.5rem;
+  padding: .7rem;
+  background: #fff;
+  font-size: 1.1em;
+}
+.options option{
+    width: 100%;
+    font-size: 1.1em;
+}
+.select::after {
+  color: #4291f8;
+  content: "\25bc";
+  position: absolute;
+  background: #fff;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 22px;
+  padding: .5rem;
+  pointer-events: none;
+  border-radius: 50%;
+  transition: all .3s ease;
+}
+.select:hover::after {
+    color: #fff;
+    background: #4291f8;
+}
 .search__button{
     position: absolute;
-    top: 10px;
-    right: 17px;
-    margin: 2px;
+    right: 130px;
     cursor: pointer;
     height: 50px;
     width: 50px;
@@ -122,7 +193,7 @@ input::-webkit-search-results-decoration {
 .list__block {
     width: 660px;
     border-radius: 0 0 20px 20px;
-    padding: 20px;
+    padding: 0 20px 20px;
 }
 .list {
     list-style: none;
