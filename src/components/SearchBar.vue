@@ -1,21 +1,19 @@
 <template>
   <div class="search__bar">
     <form class="search__form" @submit.prevent="submit">
-      <input  type="search" class="search" placeholder="Введите слово для поиска анекдотов..."> 
-      <button @click="searchHandler" type="submit" class="search__button"><i class="fa fa-search"></i></button>
+      <input  type="search" v-model="search" class="search" placeholder="Введите слово для поиска анекдотов...">
+      <button @click="filteredItems" class="search__button"><i class="fa fa-search"></i></button>
     </form>
     <div class='list__block'>
             <ul class="list">
                 <li 
-                v-for='item in searchHandler'
+                v-for='item in filteredItems'
                 :key='item.id'
                 :item_data="item"
                 class="list__item"
-                :class="{'liked': liked}"
                 >
                 {{ item.joke }}
-                <i @click="changeLike" 
-                :class="{'fas fa-thumbs-up': liked}" 
+                <i @click="changeLike"
                 class="far fa-thumbs-up"></i></li>
             </ul>
         </div>
@@ -27,6 +25,7 @@ export default {
     name: 'SearchBar',
     data() {
         return {
+            search: '',
             data: []
         }
     },
@@ -34,41 +33,33 @@ export default {
         jokes__arr: {
             type: Array,
             default: () => []
-        },
-        jokes__list: {
-            type: Array,
-            default: () => []
         }
     },
     created() {
         this.data = this.jokes__arr;
-        console.log(this.data);
     },
     computed: {
-        searchHandler(){
-            return this.data;
+        //Search for joke with key word
+        filteredItems() {
+            return this.jokes__arr.filter(elem => {
+                return elem.joke.toLowerCase().includes(this.search.toLowerCase());
+            })
         }
     },
     methods: {
-        changeLike(){
-        const likeButtons = document.querySelectorAll('.fa-thumbs-up');
-            for(let i = 0; i < likeButtons.length; i++){  
-                let btn = likeButtons[i];
-                btn.addEventListener('click', function (e) {
-                    if (e.target.className == 'far fa-thumbs-up' || e.target.className == 'fa-thumbs-up far') {
-                        e.target.classList.add('fas');
-                        e.target.classList.remove('far');
-                        e.target.parentElement.classList.add('liked');
-                    } else {
-                        e.target.classList.add('far');
-                        e.target.classList.remove('fas');
-                        e.target.parentElement.classList.remove('liked');
-                    }
-                })
+        //Like the joke
+        changeLike(e){
+            if (e.target.className == 'far fa-thumbs-up' || e.target.className == 'fa-thumbs-up far') {
+                e.target.classList.add('fas');
+                e.target.classList.remove('far');
+                e.target.parentElement.classList.add('liked');
+            } else {
+                e.target.classList.add('far');
+                e.target.classList.remove('fas');
+                e.target.parentElement.classList.remove('liked');
             }
-        
         return;
-        }
+        },
     },
 }
 </script>
@@ -100,11 +91,15 @@ export default {
 input::-webkit-search-decoration,
 input::-webkit-search-cancel-button,
 input::-webkit-search-results-button,
-input::-webkit-search-results-decoration { display: none; }
+input::-webkit-search-results-decoration { 
+    display: none; 
+}
 input::-webkit-search-decoration,
 input::-webkit-search-cancel-button,
 input::-webkit-search-results-button,
-input::-webkit-search-results-decoration { display: none; }
+input::-webkit-search-results-decoration { 
+    display: none; 
+}
 .search__button{
     position: absolute;
     top: 10px;

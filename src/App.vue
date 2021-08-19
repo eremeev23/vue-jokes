@@ -1,8 +1,10 @@
 <template>
   <div id="app">
       <SearchBar 
-      :jokes__arr='jokes.data.jokes'
+      v-if="!errored"
+      :jokes__arr='jokes.jokes'
       />
+      <h1 v-if="errored">Ошибка отправки запроса.</h1>
   </div>
 </template>
 
@@ -16,15 +18,21 @@ export default {
   },
   data() {
     return{
-      jokes: null
+      jokes: [],
+      errored: false
     }
   },
   
-  mounted() {
+  created() {
     const axios = require('axios').default;
     axios
       .get('https://v2.jokeapi.dev/joke/Any?type=single&amount=10')
-      .then(response => this.jokes = response)
+      .then(response => this.jokes = response.data)
+      .catch(error => {
+        console.log(error);
+        this.errored = true;
+        this.$root.log(this.jokes)
+      })
   }
 }
 </script>
@@ -47,6 +55,9 @@ export default {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-image: linear-gradient(to top, #00eeff, #00b7ff);
+  background-image: linear-gradient(to top left, #00eeff, #00b7ff);
+}
+h1{
+  text-transform: uppercase;
 }
 </style>
